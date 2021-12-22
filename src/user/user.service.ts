@@ -1,29 +1,30 @@
-import { Injectable } from '@nestjs/common';
-import { UserEntity } from './entities/user.entity';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { User } from './entities/user.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { CreateUserDto } from './dto/create-user.dto';
 
 @Injectable()
 export class UserService {
-  private users: UserEntity[] = [
-    {
-      id: 1,
-      email: '03zakaria@gmail.com',
-      firstName: 'Zakaria',
-      lastName: 'ATTAOUI',
-      password: 'zakariaATTAOUI',
-      dateOfBirth: '13/01/1998',
-    },
-  ];
+  constructor(
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+  ) {}
 
   findAll() {
-    return this.users;
+    return this.userRepository.find();
   }
 
-  findOne(id: string) {
-    return this.users.find((item) => item.id === +id);
+  async findOne(id: string) {
+    const user = await this.userRepository.findOne(id);
+    if (!user) {
+      throw new NotFoundException(`User #${id} not found`);
+    }
+    return user;
   }
 
-  create(createCoffeeDto: any) {
-    this.users.push(createCoffeeDto);
-    return createCoffeeDto;
+  create(createUserDto: CreateUserDto) {
+    const user = this.userRepository.create(createUserDto);
+    return this.userRepository.save(user);
   }
 }
