@@ -9,7 +9,8 @@ export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-  ) {}
+  ) {
+  }
 
   findAll() {
     return this.userRepository.find();
